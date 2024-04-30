@@ -21,6 +21,8 @@ public class Main {
         SwingUtilities.invokeLater(() -> {
             MainApplicationFrame frame = new MainApplicationFrame();
             frame.pack();
+            //frame.setLocationRelativeTo();
+            //frame.setMinimumSize(frame.getSize());
             frame.setVisible(true);
             frame.setExtendedState(Frame.MAXIMIZED_BOTH);
         });

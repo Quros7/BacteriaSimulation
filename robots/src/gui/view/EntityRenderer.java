@@ -1,7 +1,6 @@
 package gui.view;
 
 import gui.model.Entity;
-import gui.model.RobotEntity;
 
 import java.awt.*;
 

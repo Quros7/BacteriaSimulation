@@ -1,25 +1,21 @@
 package gui.viewmodel;
 
-import gui.model.Entity;
-import gui.model.Model;
-import gui.model.RobotEntity;
+import gui.model.*;
 import gui.view.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class ViewModel extends JPanel {
-    private final Model model;
-    RobotEntity robot = new RobotEntity();
-    private Map<Class<?>, EntityRenderer<?>> renderes = Map.of(
-            RobotEntity.class, new RobotRenderer()
-    );
+    private final World world;
+    private final View view;
+    private final int gameWindowWidth;
+    private final int gameWindowHeight;
+
     private static Timer initTimer()
     {
         Timer timer = new Timer("events generator", true);
@@ -27,51 +23,41 @@ public class ViewModel extends JPanel {
     }
     private final Timer m_timer = initTimer();
 
-    public ViewModel() {
-        model = new Model(robot);
+    public ViewModel(int gw_width, int gw_height, World world, View view) {
+        this.gameWindowWidth = gw_width;
+        this.gameWindowHeight = gw_height;
 
-        m_timer.schedule(new TimerTask()
-        {
-            @Override
-            public void run()
-            {
-                onRedrawEvent();
-            }
-        }, 0, 50);
+        this.world = world;
+        this.view = view;
+
         m_timer.schedule(new TimerTask()
         {
             @Override
             public void run()
             {
                 updateLogic();
+                onRedrawEvent();
             }
-        }, 0, 10);
-        addMouseListener(new MouseAdapter()
-        {
-            @Override
-            public void mouseClicked(MouseEvent e)
-            {
-                robot.setTargetPosition(e.getPoint());
-            }
-        });
+        }, 1000, 1000);
+
         setDoubleBuffered(true);
+        //onRedrawEvent();
+    }
+
+    public void updateLogic() {
+        world.updateWorld();
     }
     protected void onRedrawEvent()
     {
         EventQueue.invokeLater(this::repaint);
     }
 
-    public void updateLogic() {
-        model.updateModel();
-    }
-
     @Override
     public void paint(Graphics g) {
         super.paint(g);
-        List<Entity> entities = model.getEntities();
-        for (Entity entity : entities) {
-            EntityRenderer<Entity> entityRenderer = (EntityRenderer<Entity>)renderes.get(entity.getClass());
-            entityRenderer.render(entity, g);
-        }
+        view.paint(g);
     }
+
+    public int getGameWindowWidth() {return gameWindowWidth;}
+    public int getGameWindowHeight() {return gameWindowHeight;}
 }

@@ -1,5 +1,6 @@
 package gui.view;
 
+import gui.model.World;
 import gui.viewmodel.ViewModel;
 import log.Logger;
 
@@ -11,25 +12,27 @@ public class MainApplicationFrame extends JFrame {
     private final JDesktopPane desktopPane = new JDesktopPane();
 
     public MainApplicationFrame() {
-        //Make the big window be indented 50 pixels from each edge
-        //of the screen.
-        int inset = 50;
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds(inset, inset,
-                screenSize.width - inset * 2,
-                screenSize.height - inset * 2);
 
         setContentPane(desktopPane);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        ViewModel viewModel = new ViewModel();
+        int gw_width = 410; // размеры окна игры
+        int gw_height = 416;
+
+        World world = new World(gw_width, gw_height, 8, 8, 2);
+        View view = new View(world);
+        ViewModel viewModel = new ViewModel(gw_width, gw_height, world, view);
 
         LogWindow logWindow = createLogWindow();
         addWindow(logWindow);
 
-        GameWindow gameWindow = new GameWindow(viewModel);
-        gameWindow.setSize(400,  400);
+        GameWindow gameWindow = new GameWindow(viewModel, screenSize);
+        System.out.println(gameWindow.getBounds());
         addWindow(gameWindow);
     }
+
+    // дальше логи, пока не трогать
     protected LogWindow createLogWindow()
     {
         LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
@@ -42,7 +45,7 @@ public class MainApplicationFrame extends JFrame {
     }
     public void addWindow(JInternalFrame frame)
     {
-        desktopPane.add(frame);
+        desktopPane.add(frame, BorderLayout.CENTER);
         frame.setVisible(true);
     }
     private void setLookAndFeel(String className)
