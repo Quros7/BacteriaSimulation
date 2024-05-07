@@ -1,4 +1,4 @@
-package gui;
+package gui.view;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
@@ -10,27 +10,36 @@ import javax.swing.JPanel;
 import log.LogChangeListener;
 import log.LogEntry;
 import log.LogWindowSource;
+import log.Logger;
 
-public class LogWindow extends JInternalFrame implements LogChangeListener
-{
+public class LogWindow extends JInternalFrame implements LogChangeListener {
     private LogWindowSource m_logSource;
     private TextArea m_logContent;
 
-    public LogWindow(LogWindowSource logSource) 
+    public LogWindow(LogWindowSource logSource)
     {
         super("Протокол работы", true, true, true, true);
         m_logSource = logSource;
         m_logSource.registerListener(this);
         m_logContent = new TextArea("");
         m_logContent.setSize(200, 500);
-        
+
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(m_logContent, BorderLayout.CENTER);
         getContentPane().add(panel);
         pack();
         updateLogContent();
     }
-
+    public LogWindow createLogWindow()
+    {
+        LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
+        logWindow.setLocation(10,10);
+        logWindow.setSize(300, 800);
+        setMinimumSize(logWindow.getSize());
+        logWindow.pack();
+        Logger.debug("Протокол работает");
+        return logWindow;
+    }
     private void updateLogContent()
     {
         StringBuilder content = new StringBuilder();
@@ -41,7 +50,6 @@ public class LogWindow extends JInternalFrame implements LogChangeListener
         m_logContent.setText(content.toString());
         m_logContent.invalidate();
     }
-    
     @Override
     public void onLogChanged()
     {
