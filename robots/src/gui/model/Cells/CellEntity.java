@@ -3,7 +3,6 @@ package gui.model.Cells;
 import gui.model.Entity;
 
 import java.awt.*;
-import java.awt.geom.Point2D;
 
 public abstract class CellEntity implements Entity {
     /**
@@ -13,17 +12,22 @@ public abstract class CellEntity implements Entity {
     private Point coords;
     private int cellSize;
     private int gridStroke;
-    public CellEntity(Point p, Color c, int cs, int gs) {
-        this.coords = p;
-        this.color = c;
-        this.cellSize = cs;
-        this.gridStroke = gs;
+    public CellEntity(Point coords, Color color, int cellSize, int gridStroke) {
+        this.coords = coords;
+        this.color = color;
+        this.cellSize = cellSize;
+        this.gridStroke = gridStroke;
     }
 
     @Override
     public Point getCoords() {
         return coords;
     }
+
+    /**
+     * Перемещает клетку на указанный сдвиг (перегрузка translate() для координат, заданных как Point)
+     * @param p
+     */
     public void moveTo(Point p) {
         coords.translate(p.x, p.y);
     }

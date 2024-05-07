@@ -13,7 +13,5 @@ public class PoisonCellEntity extends CellEntity {
     }
 
     @Override
-    public void update(WorldContext context) {
-
-    }
+    public void update(WorldContext context) {}
 }

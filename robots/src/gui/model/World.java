@@ -28,21 +28,23 @@ public class World {
     private final List<CellEntity> newCells = new ArrayList<>();
     private HashMap<Point, CellEntity> entityMap = new HashMap<>();
     private WorldContext context;
-    public World(int gw_width, int gw_height, int cellCountWidth, int cellCountHeight, int gridStroke) {
+    public World(int cellCountWidth, int cellCountHeight, int cellSize, int gridStroke) {
         context = new WorldContext(this);
 
-        this.gameWindowWidth = gw_width;
-        this.gameWindowHeight = gw_height;
         this.cellCountWidth = cellCountWidth;
         this.cellCountHeight = cellCountHeight;
         this.gridStroke = gridStroke;
-
-        cellSize = (gw_width - (cellCountWidth + 1) * gridStroke) / cellCountWidth;
+        this.cellSize = cellSize;
+        this.gameWindowWidth = cellCountWidth * cellSize + (cellCountWidth + 1) * gridStroke;
+        this.gameWindowHeight = cellCountHeight * cellSize + (cellCountHeight + 1) * gridStroke;
 
         spawnEntities();
         fillMatrix();
     }
 
+    /**
+     * Обновляет все entity, уничтожает мертвые клетки и спавнит новые
+     */
     public void updateWorld() {
         for (Entity entity : entities) {
             entity.update(context);
@@ -54,6 +56,11 @@ public class World {
         return entities;
     }
 
+    /**
+     * Возвращает клетку, находящуюся на указанных координатах
+     * @param p
+     * @return
+     */
     public CellEntity getEntityOnCoords(Point p) {
         if (entityMap.containsKey(p)) {
             return entityMap.get(p);
@@ -61,6 +68,9 @@ public class World {
         return null;
     }
 
+    /**
+     * Создание всех клеток мира
+     */
     public void spawnEntities() {
         entities.add(new BacteriaCellEntity(new Point(0, 0), cellSize, gridStroke));
         entities.add(new BacteriaCellEntity(new Point(1, 0), cellSize, gridStroke));
@@ -78,6 +88,10 @@ public class World {
         entities.add(new PoisonCellEntity(new Point(1, 1), cellSize, gridStroke));
         entities.add(new PoisonCellEntity(new Point(2, 6), cellSize, gridStroke));
     }
+
+    /**
+     * Заполняет entityMap информацией о координатах всех заспавненных клеток
+     */
     public void fillMatrix() {
         for (Entity entity: entities) {
             if (entity instanceof CellEntity) {
@@ -86,14 +100,25 @@ public class World {
             }
         }
     }
+
+    /**
+     * Перемещает клетку со старых координат на новые
+     * @param oldCoords
+     * @param newCoords
+     */
     public void moveBacteriaToCoords(Point oldCoords, Point newCoords) {
         entityMap.put(newCoords, entityMap.get(oldCoords));
         entityMap.remove(oldCoords);
     }
+
+    /**
+     * Клетка съедает еду, еда удаляется; съевшая еду клетка увеличивает своё здоровье на число, которое вернет функция
+     * @param food
+     * @return
+     */
     public int eatFood(FoodCellEntity food) {
         int healingAmount = food.getHealingAmount();
         killCell(food);
-        //food.kill();
         return healingAmount;
     }
 
@@ -128,6 +153,16 @@ public class World {
     }
 
     /**
+     * Превращает клетку яда в еду (удаляет яд, создаёт новую еду на тех же координатах)
+     * @param poison
+     */
+    public void curePoison(PoisonCellEntity poison){
+        FoodCellEntity newFood = new FoodCellEntity(poison.getCoords(), cellSize, gridStroke, mediumFood);
+        killCell(poison);
+        entityMap.put(newFood.getCoords(), newFood);
+        newCells.add(newFood);
+    }
+    /**
      * Добавляет в список entities все новые клетки из очереди newCells
      */
     public void createCells() {
@@ -139,6 +174,5 @@ public class World {
     public int getGameWindowWidth() {return gameWindowWidth;}
     public int getGameWindowHeight() {return gameWindowHeight;}
     public int getCellSize() {return cellSize;}
-    public void setCellSize(int size) {cellSize = size;}
     public int getGridStroke() {return gridStroke;}
 }
